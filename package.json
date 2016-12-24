@@ -1,0 +1,33 @@
+{
+  "name": "janus-api",
+  "version": "0.0.1",
+  "description": "Janus API server",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janusvr/janus-api.git"
+  },
+  "author": "Brandon Hinshaw <bkhinshaw@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/janusvr/janus-api/issues"
+  },
+  "homepage": "https://github.com/janusvr/janus-api#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "superagent": "^3.3.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mysql": "^2.12.0",
+    "split-ca": "^1.0.1"
+  }
+}
