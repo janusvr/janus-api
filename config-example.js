@@ -5,7 +5,7 @@ module.exports = {
     webServerPort: 8080,
 
     MySQL_Hostname: 'localhost',
-    MySQL_Username: '',
+    MySQL_Username: 'root',
     MySQL_Password: '',
     MySQL_Database: 'janusvr',  
 
