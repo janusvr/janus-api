@@ -38,7 +38,10 @@ module.exports = {
         },
         partyList: {
             enabled: true,
-            db: 'perflogs'
+        },
+        perfLog: {
+            enabled: true,
+            db: "perflogs"  
         }
     }
 }

@@ -6,7 +6,9 @@ services:
     - redis
 before_install:
     - mysql -e 'CREATE DATABASE janusvr;'
+    - mysql -e 'CREATE DATABASE perflogs'
     - mysql janusvr < test/db/testdb.sql
+    - mysql perflogs < test/db/perflogs.sql
     - cp config-example.js config.js
     - ./generate_key_ni
 
