@@ -3,6 +3,7 @@ node_js:
     - "4"
 services:
     - mysql
+    - redis
 before_install:
     - mysql -e 'CREATE DATABASE janusvr;'
     - mysql janusvr < test/db/testdb.sql

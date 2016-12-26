@@ -4,12 +4,20 @@ var splitca = require('split-ca');
 module.exports = {
     webServerPort: 8080,
 
+    /* MySQL config */
     MySQL_Hostname: 'localhost',
     MySQL_Username: 'root',
     MySQL_Password: '',
     MySQL_Database: 'janusvr',  
+    
+    /* Redis config */
+    redis: {
+        host: "127.0.0.1",
+        port: 6379,
+        //password: null
+    },
 
-    /* SSL configurations */
+    /* SSL config */
     ssl: {
         port: 8081,
         options: {
@@ -19,6 +27,7 @@ module.exports = {
         }
     },
 
+    /* API Config */
     apis: {
         popularRooms: {
             enabled: true,
@@ -28,7 +37,8 @@ module.exports = {
             masterToken: 'changethis'
         },
         partyList: {
-            enabled: false
+            enabled: true,
+            db: 'perflogs'
         }
     }
 }

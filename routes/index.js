@@ -1,7 +1,9 @@
 var bodyParser = require('body-parser'),
     express = require('express'),
     mysql = require('mysql'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    redis = require('redis'),
+    redisClient = redis.createClient(global.config.redis);
 
 
 this._conn = mysql.createPool({
@@ -10,6 +12,7 @@ this._conn = mysql.createPool({
     password : config.MySQL_Password,
     database : config.MySQL_Database
 });
+
 
 var router = express.Router();
 
@@ -56,7 +59,61 @@ if (global.config.apis.addThumb.enabled) {
 
 if (global.config.apis.partyList.enabled) {
     router.get('/get_partylist', function (req, res) {
-        res.json({"success": false, "data": [{"error": "Not implemented"}]});
+        redisClient.get("partylist", (err, reply) => {
+            if (err) 
+                return res.json({"success": false});
+            else
+                return res.json(JSON.parse(reply.toString())); 
+        });
+    });
+}
+
+if (global.config.apis.perfLog.enabled) {
+    this._perflog = mysql.createPool({
+        host     : config.MySQL_Hostname,
+        user     : config.MySQL_Username,
+        password : config.MySQL_Password,
+        database : config.apis.perfLog.db
+    });
+    router.post('/perflog', (req, res) => {
+        var data = req.body.toString();
+        if (data.substring(0,5) === "data=") {
+            try {
+                data = JSON.parse(data.substring(5));
+            } catch (e) {
+                return res.json({"success": false, "error": e.toString()});
+            }
+        }
+        var fields = {
+            "version": data.version || "0", // decimal: XX.YY
+            "resx": data.res[0] || 0, // int
+            "resy": data.res[1] || 0,
+            "msaa": data.msaa || 0, // int
+            "fov": data.fov || 0, // float
+            "url": data.url || "", //varchar(256)
+            "hash": data.hash || "", // varchar(64)
+            "minftCPU": data.minftCPU || 0, // float
+            "medianftCPU": data.medianftCPU || 0,  // float
+            "maxftCPU": data.maxftCPU || 0,  // float
+            "minftGPU": data.minftGPU || 0, // float
+            "medianftGPU": data.medianftGPU || 0, // float
+            "maxftGPU": data.medianftGPU || 0, // float
+            "OS": data.OS || "", // float
+            "sysmem": data.sysmem || 0, // float 
+            "processorvendor": data.processorvendor || "", // varchar(256)
+            "processordevice": data.processordevice || "", // varchar(256)
+            "gpuvendor": data.gpuvendor || "", // varchar (256)
+            "gpudevice": data.gpudevice || "", // varchar(256)
+            "gpudriverversion": data.gpudriverversion || "", // varchar(256)
+            "rendermode": data.rendermode || "" //varchar(256)
+        }
+        var sql = "INSERT into `log` SET ?";
+        this._perflog.query(sql, fields, (err, result) => {
+            if (err) 
+                return res.json({"success": false, "error": "DB insert error"+err.toString()});
+            else
+                return res.json({"success": true, "error": "success"}); 
+        });
     });
 }
 router.get('/', function (req, res) {

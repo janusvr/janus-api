@@ -3,7 +3,8 @@ var http = require('http'),
     bodyParser = require('body-parser'),
     express = require('express');
 
-global.config = require('./config.js');
+if (typeof(global.config) === "undefined")
+    global.config = require('./config.js');
 function Server() {
 
 }
@@ -11,8 +12,8 @@ function Server() {
 // ## start web server ##
 Server.prototype.start = function (cb) {
     this.ws = express();
-    this.ws.use(bodyParser.json());
-
+    this.ws.use(bodyParser.json({ type: "application/json" }));
+    this.ws.use(bodyParser.raw({ type: "application/x-www-form-urlencoded"}));
     var router = require("./routes/index.js");
     this.ws.use(router);
 
