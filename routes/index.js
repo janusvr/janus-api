@@ -1,6 +1,7 @@
 var bodyParser = require('body-parser'),
     express = require('express'),
     mysql = require('mysql'),
+    async = require('async'),
     bodyParser = require('body-parser'),
     redis = require('redis'),
     redisClient = redis.createClient(global.config.redis);
@@ -62,8 +63,30 @@ if (global.config.apis.partyList.enabled) {
         redisClient.get("partylist", (err, reply) => {
             if (err) 
                 return res.json({"success": false});
-            else
-                return res.json(JSON.parse(reply.toString())); 
+            return res.json(JSON.parse(reply.toString())); 
+        });
+    });
+
+    router.get('/partymodeAPI', function (req, res) {
+        redisClient.get("partylist", (err, reply) => {
+            if (err)
+                return res.json({"success": false});
+            var partyList = JSON.parse(reply.toString()), 
+                rval = {success: "true", data: []};
+            async.each(Object.keys(partyList), function(key, cb) {
+                var newObj = {
+                    userId: key,
+                    roomId: partyList[key].roomId,
+                    url: partyList[key].roomUrl,
+                    name: partyList[key].roomName,
+                };
+                rval.data.push(newObj);
+                cb();
+            }, function(err) {
+                if (err)
+                    return res.json({"success": false});
+                return res.json(rval);
+            });
         });
     });
 }
