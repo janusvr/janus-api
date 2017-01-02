@@ -83,6 +83,28 @@ describe('server', () => {
                 }); 
             });
         });
+        describe('/partymodeAPI', done => {
+            it ('should return the formatted partylist', done => {
+                var partylist = {
+                    "success": "true",
+                    "data": [
+                        {
+                            "userId": "tester",
+                            "roomId": "3f2cd15ed94812b8d98bbbe1421478b3",
+                            "url": "http://testroom",
+                            "name": ""
+                        }
+                    ]
+                }
+                request
+                .get('http://localhost:8080/partymodeAPI')
+                .end( (err, res) => {
+                    if (err) throw new Error(err);
+                    expect(res.body).to.eql(partylist);
+                    done();
+                });
+            });
+        });
         describe('/perflog', done => {
             it('should accept POST with perf data', done => {
                 data = {
