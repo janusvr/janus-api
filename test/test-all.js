@@ -22,6 +22,40 @@ describe('server', () => {
             done();
         });
     });
+    describe('auth', done => {
+        before( done => {
+            var db = require('redis').createClient(global.config.redis);
+            db.multi()
+              .hmset('users:username', {
+                id: 'username',
+                username: 'username',
+                password: 'password'
+              })
+              .hmset('clients:client', {
+                clientId: 'client',
+                clientSecret: 'secret',
+                grants: "password, authorization_code"
+              })
+              .exec(function (err) {
+                if (err) throw new Error(err); 
+                done(); 
+              });
+        });
+        it('should issue a token when provided correct credentials', done => {
+            var authString = new Buffer('client:secret').toString('base64');
+            request
+            .post('http://localhost:8080/oauth/token')
+            .send('grant_type=password')
+            .send('username=username')
+            .send('password=password')
+            .set('Authorization', 'Basic '+authString)
+            .end( (err, res) => {
+                if (err) throw new Error(err);
+                expect(res.body).to.contain.all.keys(['access_token', 'token_type', 'expires_in', 'refresh_token']);
+                done();
+            });
+        });
+    });
     describe('apis', (done) => {
         describe('/getPopularRooms', (done) => {
             it('should return 200 when /getPopularRooms is requested over http', (done) => {

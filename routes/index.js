@@ -4,8 +4,8 @@ var bodyParser = require('body-parser'),
     async = require('async'),
     bodyParser = require('body-parser'),
     redis = require('redis'),
-    redisClient = redis.createClient(global.config.redis);
-
+    redisClient = redis.createClient(global.config.redis),
+    OAuthServer = require('express-oauth-server');
 
 this._conn = mysql.createPool({
     host     : config.MySQL_Hostname,
@@ -16,6 +16,16 @@ this._conn = mysql.createPool({
 
 
 var router = express.Router();
+// set up oauth server
+var oauth = new OAuthServer({
+    model: require('../model'),
+});
+
+router.post('/oauth/token', oauth.token());
+
+router.get('/secret', oauth.authenticate(), (req, res) => {
+    res.send('Secret');
+});
 
 if (global.config.apis.popularRooms.enabled) {
     router.get('/getPopularRooms', function (req, res) {
@@ -24,7 +34,9 @@ if (global.config.apis.popularRooms.enabled) {
             orderBy = req.query.orderBy || "weight",
             desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "",
             contains = req.query.urlContains ? "%" + req.query.urlContains + "%" : "%";
-        var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered, thumbnail FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
+        var sql = "SELECT roomName, url as roomUrl, count, weight,";
+            sql += " UNIX_TIMESTAMP(lastSeen) as lastEntered, thumbnail";
+            sql += " FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
         this._conn.query(sql, [contains, orderBy, offset, limit], function(err, results) {
             if (err) { 
                 console.log(err);
@@ -99,14 +111,9 @@ if (global.config.apis.perfLog.enabled) {
         database : config.apis.perfLog.db
     });
     router.post('/perflog', (req, res) => {
-        var data = req.body.toString();
-        if (data.substring(0,5) === "data=") {
-            try {
-                data = JSON.parse(data.substring(5));
-            } catch (e) {
-                return res.json({"success": false, "error": e.toString()});
-            }
-        }
+        if (!req.body.hasOwnProperty('data'))
+            return res.json({"succes": false, "error": "Must include data parameter"});
+        var data = JSON.parse(req.body.data);
         var fields = {
             "version": data.version || "0", // decimal: XX.YY
             "resx": data.res[0] || 0, // int
