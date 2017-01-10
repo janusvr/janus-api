@@ -41,3 +41,6 @@ config.js
 
 # Certs
 cert
+
+# vim swap files
+*.*.swp
