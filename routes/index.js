@@ -1,8 +1,6 @@
-var bodyParser = require('body-parser'),
-    express = require('express'),
-    mysql = require('mysql'),
+var mysql = require('mysql'),
     async = require('async'),
-    bodyParser = require('body-parser'),
+    express = require('express'),
     redis = require('redis'),
     redisClient = redis.createClient(global.config.redis),
     OAuthServer = require('express-oauth-server');
