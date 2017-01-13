@@ -103,7 +103,7 @@ if (global.config.apis.perfLog.enabled) {
         database : config.apis.perfLog.db
     });
     router.post('/perflog', (req, res) => {
-        if (!req.body.hasOwnProperty('data'))
+        if (!Object.prototype.hasOwnProperty.call(req.body, 'data'))
             return res.json({"succes": false, "error": "Must include data parameter"});
         var data = JSON.parse(req.body.data);
         var fields = {
