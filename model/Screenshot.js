@@ -9,7 +9,7 @@ function Screenshot() {
                     + " `screenshot_id` INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY(`screenshot_id`),"
                     + " `room_id` INT(11),"
                     + " `key` VARCHAR(512) NOT NULL,"
-                    + " `value` VARCHAR(512) DEFAULT 'QUE',"
+                    + " `value` VARCHAR(512) NOT NULL,"
                     + " `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                     + ")";
     this._conn.query(this._createQry);
