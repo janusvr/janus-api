@@ -27,10 +27,10 @@ Screenshot.prototype.requestScreenshot = function(url, cb) {
         if (rooms.length > 0) {
             // yes, check if screenshots exist
             var room_id = rooms[0].room_id;
-            this.getScreenShot(room_id, (err, screenshot) => {
+            this.getScreenshot(room_id, (err, screenshots) => {
                 if (err) return cb(err);
-                if (res.length > 0)
-                    return cb(null, res)
+                if (screenshots.length > 0)
+                    return cb(null, screenshots)
                 else {
                     // add job
                     queue.addJob(room_id, url, err => {
@@ -55,7 +55,7 @@ Screenshot.prototype.requestScreenshot = function(url, cb) {
 
 
 Screenshot.prototype.getScreenshot = function(room_id, cb) {
-    this._conn.query(this._getScreenByUrlQry, [room_id], (err, res) => {
+    this._conn.query(this._getScreenByIdQry, [room_id], (err, res) => {
         if (err) return cb(err);
         return cb(null, res);
     });
