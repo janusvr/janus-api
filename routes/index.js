@@ -5,13 +5,7 @@ var mysql = require('mysql'),
     redisClient = redis.createClient(global.config.redis),
     OAuthServer = require('express-oauth-server');
 
-this._conn = mysql.createPool({
-    host     : config.MySQL_Hostname,
-    user     : config.MySQL_Username,
-    password : config.MySQL_Password,
-    database : config.MySQL_Database
-});
-
+this._conn = require('../model/mysql-db').getPool();
 
 var router = express.Router();
 // set up oauth server

@@ -1,12 +1,6 @@
-var mysql = require('mysql');
-
+var mysqldb = require('./mysql-db');
 function Queue() {
-    this._conn = mysql.createPool({
-        host     : config.MySQL_Hostname,
-        user     : config.MySQL_Username,
-        password : config.MySQL_Password,
-        database : config.MySQL_Database
-    });
+    this._conn = mysqldb.getPool();
 
     this._createQry = "CREATE TABLE IF NOT EXISTS `jobqueue` ("
                     + " `job_id` INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY(`job_id`),"
@@ -17,7 +11,7 @@ function Queue() {
                     + ")";
 
     this._addJobQuery = "INSERT INTO `jobqueue` (room_id, url) VALUES (?, ?)";
-    this._getJobQuery = "SELECT * FROM `jobqueue` WHERE state = 'QUE' LIMIT 1 FOR UPDATE";
+    this._getJobQuery = "SELECT * FROM `jobqueue` WHERE state = 'QUE' ORDER BY `ts` LIMIT 1 FOR UPDATE";
     this._updateJobQuery = "UPDATE `jobqueue` SET state = ? WHERE job_id = ?";
     this._conn.query(this._createQry, err => { if (err) throw new Error(err); });
 }
@@ -40,6 +34,7 @@ Queue.prototype.addJob = function (id, url, cb) {
 Queue.prototype.getJob = function (cb) {
     // get (num) jobs from the database, and return them
     // in an array
+    // TODO: clean this up, break callbacks into separate functions
     this._conn.getConnection( (err, conn) => {
         conn.beginTransaction( err => {
             if (err) {
@@ -74,4 +69,4 @@ Queue.prototype.setJobStatus = function(id, stateString) {
     // set the state on a particular job id
 };
 
-module.exports = Queue;
+module.exports = new Queue();
