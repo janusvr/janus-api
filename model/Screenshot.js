@@ -14,6 +14,7 @@ function Screenshot() {
                     + ")";
     this._conn.query(this._createQry);
     this._getScreenByIdQry = "SELECT * FROM `screenshots` WHERE `room_id` = ?";
+    this._addScreenQry = "INSERT INTO `screenshots` (`room_id`, `key`, `value`) VALUES (?, ?, ?)";
 }
 
 Screenshot.prototype.requestScreenshot = function(url, cb) {
@@ -48,17 +49,28 @@ Screenshot.prototype.requestScreenshot = function(url, cb) {
                     return cb(err, null);
                 });
             });
-
         }   
     });
 }
-
 
 Screenshot.prototype.getScreenshot = function(room_id, cb) {
     this._conn.query(this._getScreenByIdQry, [room_id], (err, res) => {
         if (err) return cb(err);
         return cb(null, res);
     });
+}
+
+Screenshot.prototype.addScreenshot = function(opts, cb) {
+    //  options: {
+    //      room_id: int,
+    //      key: string,
+    //      value: string 
+    //  }
+    this._conn.query(this._addScreenQry, [opts.room_id, opts.key, opts.value], (err, res) => {
+        if (err) return cb(err);
+        return cb(null, res);
+    });
+    
 }
 
 module.exports = new Screenshot();

@@ -19,6 +19,10 @@ router.get('/secret', oauth.authenticate(), (req, res) => {
     res.send('Secret');
 });
 
+if (global.config.apis.screenshot.enabled) {
+    router.use('/screenshot', require('./screenshot'));
+}
+
 if (global.config.apis.popularRooms.enabled) {
     router.get('/getPopularRooms', function (req, res) {
         var limit = parseInt(req.query.limit, 10) || 20,

@@ -29,7 +29,6 @@ module.exports.getAccessToken = function(bearerToken) {
       if (!token) {
         return;
       }
-      console.log('token', token);
       return {
         accessToken: token.accessToken,
         clientId: token.client,

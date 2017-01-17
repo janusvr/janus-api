@@ -13,6 +13,7 @@ function Queue() {
     this._addJobQuery = "INSERT INTO `jobqueue` (room_id, url) VALUES (?, ?)";
     this._getJobQuery = "SELECT * FROM `jobqueue` WHERE state = 'QUE' ORDER BY `ts` LIMIT 1 FOR UPDATE";
     this._updateJobQuery = "UPDATE `jobqueue` SET state = ? WHERE job_id = ?";
+    this._finishJob = "DELETE from `jobqueue` WHERE job_id = ?";
     this._conn.query(this._createQry, err => { if (err) throw new Error(err); });
 }
 
@@ -65,8 +66,10 @@ Queue.prototype.getJob = function (cb) {
     });
 };
 
-Queue.prototype.setJobStatus = function(id, stateString) {
-    // set the state on a particular job id
+Queue.prototype.finishJob = function(job_id, cb) {
+    this._conn.query(this._finishJob, [job_id], (err, res) => {
+        return cb(err);
+    });
 };
 
 module.exports = new Queue();
