@@ -26,6 +26,13 @@ module.exports = {
             cert: fs.readFileSync('cert/server-cert.pem'),
         }
     },
+    /* AWS config */
+    aws: {
+        secretAccessKey: '',
+        accessKeyId: '',
+        region: '',
+        screenshotBucket: ''
+    },
 
     /* API Config */
     apis: {
@@ -42,6 +49,9 @@ module.exports = {
         perfLog: {
             enabled: true,
             db: "perflogs"  
+        },
+        screenshot: {
+            enabled: true
         }
     }
 }
