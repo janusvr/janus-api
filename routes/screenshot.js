@@ -43,7 +43,7 @@ router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, ne
     // "job_id": optional, the job to complete
     // "room_id": the id of the room
     // "key": the type of screenshot
-    var fields = req.body; //FIXME: remove
+    var fields = req.body; 
     fields.value = req.files[0].location;
     fields.room_id = parseInt(fields.room_id, 10);
     async.waterfall([ 
@@ -55,7 +55,7 @@ router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, ne
                 // complete the job
                 queue.finishJob(fields.job_id, callback);
             }
-            else return callback();
+            else return callback(err);
         }],
         function done(err, results) {
             // handle errors
