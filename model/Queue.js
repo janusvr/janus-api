@@ -68,7 +68,8 @@ Queue.prototype.getJob = function (cb) {
 
 Queue.prototype.finishJob = function(job_id, cb) {
     this._conn.query(this._finishJob, [job_id], (err, res) => {
-        return cb(err);
+        if (err) return cb(err);
+        return cb(null, res);
     });
 };
 

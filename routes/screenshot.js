@@ -50,19 +50,36 @@ router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, ne
         function addScreenshot(callback) {
             screenshot.addScreenshot(fields, callback);
         },
-        function completeJob(err, callback) {
+        function completeJob(callback) {
             if (fields.job_id) {
                 // complete the job
                 queue.finishJob(fields.job_id, callback);
             }
-            else return callback(err);
+            else return callback();
         }],
-        function done(err, results) {
+        function done(err) {
             // handle errors
-            if (err) return res.json({"success": false, "error": err.message});
+            if (err) {
+                console.log('error', err);
+                return res.json({"success": false, "error": err.message});
+            }
             return res.set("Content-type", "application/json").send(successResponse);
         }
     );
+});
+
+router.get('/get', (req, res) => {
+    if (!req.query.url) 
+        return res.json({"success": false, "error": "Must provide a URL parameter"});
+    var key = req.query.key || '%'; 
+    var url = req.query.url;
+    screenshot.requestScreenshot(url, key, (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.json({"success": false, "error": err.message});
+        }
+        return res.json({"success": true, "data": results});
+    });
 });
 
 module.exports = router;
