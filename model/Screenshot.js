@@ -8,17 +8,20 @@ function Screenshot() {
     this._createQry = "CREATE TABLE IF NOT EXISTS `screenshots` ("
                     + " `screenshot_id` INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY(`screenshot_id`),"
                     + " `room_id` INT(11),"
+                    + " `url` VARCHAR(512),"
                     + " `key` VARCHAR(512) NOT NULL,"
                     + " `value` VARCHAR(512) NOT NULL,"
                     + " `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                     + ")";
-    this._conn.query(this._createQry);
+    this._conn.query(this._createQry, () => { console.log('created table')});
+    
     this._getScreenByIdQry = "SELECT * FROM `screenshots` WHERE `room_id` = ? AND screenshots.key LIKE ?";
     this._getScreenByUrlQry = "SELECT * FROM `screenshots`"
                             + " LEFT JOIN `room_catalogue`"
                             + " ON screenshots.room_id = room_catalogue.room_id " 
                             + " WHERE room_catalogue.url LIKE ? AND screenshots.key LIKE ? "
     this._addScreenQry = "INSERT INTO `screenshots` (`room_id`, `key`, `value`) VALUES (?, ?, ?)";
+    this._addScreenByUrlQry = "INSERT INTO `screenshots` (`url`, `key`, `value`) VALUES (?, ?, ?)";
 }
 
 Screenshot.prototype.requestScreenshot = function(url, key, cb) {
@@ -77,7 +80,7 @@ Screenshot.prototype.addScreenshot = function(opts, cb) {
     //      key: string,
     //      value: string 
     //  }
-    this._conn.query(this._addScreenQry, [opts.room_id, opts.key, opts.value], (err, res) => {
+    this._conn.query(this._addScreenByUrlQry, [opts.url, opts.key, opts.value], (err, res) => {
         if (err) return cb(err);
         return cb(null);
     });

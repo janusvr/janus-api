@@ -45,7 +45,7 @@ router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, ne
     // "key": the type of screenshot
     var fields = req.body; 
     fields.value = req.files[0].location;
-    fields.room_id = parseInt(fields.room_id, 10);
+    if (fields.room_id) fields.room_id = parseInt(fields.room_id, 10);
     async.waterfall([ 
         function addScreenshot(callback) {
             screenshot.addScreenshot(fields, callback);
