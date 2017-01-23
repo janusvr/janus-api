@@ -21,6 +21,7 @@ router.get('/secret', oauth.authenticate(), (req, res) => {
 
 if (global.config.apis.screenshot.enabled) {
     router.use('/screenshot', require('./screenshot'));
+    router.use('/queue', require('./queue'));
 }
 
 if (global.config.apis.popularRooms.enabled) {
