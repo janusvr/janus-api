@@ -6,12 +6,12 @@ function Catalogue () {
                     + " `url` VARCHAR(512) NOT NULL,"
                     + " `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
                     + " `roomtitle` VARCHAR(512),"
-                    + " `firstcrawl` TIMESTAMP,"
-                    + " `lastcrawl` TIMESTAMP,"
+                    + " `firstcrawl` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+                    + " `lastcrawl` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
                     + " `cors_enabled` TINYINT(1),"
                     + " `https` TINYINT(1)"
                     + ")"; 
-    this._conn.query(this._createQry);
+    this._conn.query(this._createQry, err => { if (err)  console.log(err); });
 
     this._addQuery = "INSERT IGNORE INTO `room_catalogue` SET ?";
     this._getByUrlQuery = "SELECT * FROM `room_catalogue` WHERE url = ? LIMIT 1";
