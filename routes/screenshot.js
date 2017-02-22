@@ -26,7 +26,6 @@ var upload = multer({
     storage: multerS3({
         s3: s3,
         bucket: global.config.aws.screenshotBucket,
-        acl: 'public-read',
         key: function(req, file, cb) {
             // create the filename (md5 hash of date + original extension)
             var extension = path.extname(file.originalname);
@@ -43,6 +42,7 @@ router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, ne
     // "job_id": optional, the job to complete
     // "room_id": the id of the room
     // "key": the type of screenshot
+    console.log(req.body);
     var fields = req.body; 
     fields.value = req.files[0].location;
     if (fields.room_id) fields.room_id = parseInt(fields.room_id, 10);

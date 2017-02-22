@@ -6,15 +6,27 @@ function Queue() {
                     + " `job_id` INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY(`job_id`),"
                     + " `url` VARCHAR(512) NOT NULL,"
                     + " `room_id` INT(11) NOT NULL,"
+                    + " `type` VARCHAR(128) DEFAULT 'thumb',"
+                    + " `base_filename` VARCHAR(255),"
                     + " `state` VARCHAR(32) DEFAULT 'QUE',"
                     + " `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                     + ")";
-
+    this._dropTrigger = "DROP TRIGGER IF EXISTS before_insert_job ";
+    this._createTrigger = "CREATE TRIGGER before_insert_job "
+                        + "BEFORE INSERT ON `jobqueue` "
+                       + " FOR EACH ROW SET new.base_filename = CONCAT(MD5(new.url), '/', new.type, '/', UNIX_TIMESTAMP(CURRENT_TIMESTAMP), '.jpg')"
+ 
     this._addJobQuery = "INSERT INTO `jobqueue` (room_id, url) VALUES (?, ?)";
     this._getJobQuery = "SELECT * FROM `jobqueue` WHERE state = 'QUE' ORDER BY `ts` LIMIT 1 FOR UPDATE";
     this._updateJobQuery = "UPDATE `jobqueue` SET state = ? WHERE job_id = ?";
     this._finishJob = "DELETE from `jobqueue` WHERE job_id = ?";
-    this._conn.query(this._createQry, err => { if (err) throw new Error(err); });
+    this._getJobById = "SELECT * FROM `jobqueue` WHERE job_id = ?";
+    this._conn.query(this._createQry, err => { 
+        if (err) throw new Error(err); 
+        this._conn.query(this._dropTrigger, err => {
+            this._conn.query(this._createTrigger, err => {if (err) throw new Error(err); });
+        });
+    });
 }
 
 /**
@@ -27,8 +39,12 @@ Queue.prototype.addJob = function (id, url, cb) {
     // add a job to the database   
     this._conn.query(this._addJobQuery, [id,url], (err, res) => {
         if (err) console.log(err); // TODO: error handlers
-        if (typeof(cb) == "function")
-            cb(err);
+        if (typeof(cb) == "function") {
+            this._conn.query(this._getJobById, [res.insertId], (err, job) => {
+                if (err) return cb(err);
+                return cb(null, job);
+            });
+        }
     });
 };
 

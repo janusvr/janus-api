@@ -14,12 +14,12 @@ function Screenshot() {
                     + " `ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                     + ")";
     this._conn.query(this._createQry, () => { console.log('created table')});
-    
+
     this._getScreenByIdQry = "SELECT * FROM `screenshots` WHERE `room_id` = ? AND screenshots.key LIKE ?";
     this._getScreenByUrlQry = "SELECT * FROM `screenshots`"
                             + " LEFT JOIN `room_catalogue`"
                             + " ON screenshots.room_id = room_catalogue.room_id " 
-                            + " WHERE room_catalogue.url LIKE ? AND screenshots.key LIKE ? "
+                            + " WHERE room_catalogue.url LIKE ? AND screenshots.key LIKE ? ";
     this._addScreenQry = "INSERT INTO `screenshots` (`room_id`, `key`, `value`) VALUES (?, ?, ?)";
     this._addScreenByUrlQry = "INSERT INTO `screenshots` (`url`, `key`, `value`) VALUES (?, ?, ?)";
 }
@@ -35,14 +35,14 @@ Screenshot.prototype.requestScreenshot = function(url, key, cb) {
         if (rooms.length > 0) {
             // yes, check if screenshots exist
             var room_id = rooms[0].room_id;
-            this.getScreenshot(room_id, key, (err, screenshots) => {
+            this.getScreenshotByUrl(url, key, (err, screenshots) => {
                 if (err) return cb(err);
                 if (screenshots.length > 0)
                     return cb(null, screenshots)
                 else {
                     // add job
-                    queue.addJob(room_id, url, err => {
-                        return cb(err, null);
+                    queue.addJob(room_id, url, (err, res) => {
+                        return cb(err, res);
                     });
                 }
             });
