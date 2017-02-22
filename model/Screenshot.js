@@ -16,10 +16,7 @@ function Screenshot() {
     this._conn.query(this._createQry, () => { console.log('created table')});
 
     this._getScreenByIdQry = "SELECT * FROM `screenshots` WHERE `room_id` = ? AND screenshots.key LIKE ?";
-    this._getScreenByUrlQry = "SELECT * FROM `screenshots`"
-                            + " LEFT JOIN `room_catalogue`"
-                            + " ON screenshots.room_id = room_catalogue.room_id " 
-                            + " WHERE room_catalogue.url LIKE ? AND screenshots.key LIKE ? ";
+    this._getScreenByUrlQry = "SELECT * FROM `screenshots` WHERE url LIKE ? AND `key` LIKE ? "
     this._addScreenQry = "INSERT INTO `screenshots` (`room_id`, `key`, `value`) VALUES (?, ?, ?)";
     this._addScreenByUrlQry = "INSERT INTO `screenshots` (`url`, `key`, `value`) VALUES (?, ?, ?)";
 }

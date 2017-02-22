@@ -44,3 +44,6 @@ cert
 
 # vim swap files
 *.*.swp
+
+# Cert files
+Digicert/
