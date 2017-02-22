@@ -18,6 +18,14 @@ Server.prototype.start = function (cb) {
     //this.ws.use(bodyParser.raw({ type: "application/x-www-form-urlencoded"}));
     this.ws.use(bodyParser.urlencoded({ extended: false}));
  
+    this.ws.use(function(req, res, next) {
+
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST');
+	if (req.headers['Access-Control-Request-Headers'] || req.headers['access-control-request-headers'])
+            res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] + ', Authorization');
+	next();
+    });
     // include routes
     var router = require("./routes/index.js");
     this.ws.use(router);

@@ -51,7 +51,7 @@ module.exports = {
             db: "perflogs"  
         },
         screenshot: {
-            enabled: true
+            enabled: false
         }
     }
 }

@@ -26,7 +26,6 @@ var upload = multer({
     storage: multerS3({
         s3: s3,
         bucket: global.config.aws.screenshotBucket,
-        acl: 'public-read',
         key: function(req, file, cb) {
             // create the filename (md5 hash of date + original extension)
             var extension = path.extname(file.originalname);
@@ -37,14 +36,15 @@ var upload = multer({
     })
 });
 
-router.post('/add', oauth.authenticate(), upload.array('file', 1), (req, res, next) => { 
+router.post('/add', oauth.authenticate(), upload.single('file'), (req, res, next) => { 
     // Client must POST a multipart upload with fields:
     // "file": the image
     // "job_id": optional, the job to complete
     // "room_id": the id of the room
     // "key": the type of screenshot
     var fields = req.body; 
-    fields.value = req.files[0].location;
+    console.log('fields', fields);
+    fields.value = req.file.location;
     if (fields.room_id) fields.room_id = parseInt(fields.room_id, 10);
     async.waterfall([ 
         function addScreenshot(callback) {
@@ -73,7 +73,7 @@ router.get('/get', (req, res) => {
         return res.json({"success": false, "error": "Must provide a URL parameter"});
     var key = req.query.key || '%'; 
     var url = req.query.url;
-    screenshot.requestScreenshot(url, key, (err, results) => {
+    screenshot.getScreenshotByUrl(url, key, (err, results) => {
         if (err) {
             console.log(err);
             return res.json({"success": false, "error": err.message});
