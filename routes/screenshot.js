@@ -74,12 +74,12 @@ router.get('/get', (req, res) => {
         return res.json({"success": false, "error": "Must provide a URL parameter"});
     var key = req.query.key || '%'; 
     var url = req.query.url;
-    screenshot.getScreenshotByUrl(url, key, (err, results) => {
+    screenshot.requestScreenshot(url, key, (err, results) => {
         if (err) {
             console.log(err);
             return res.json({"success": false, "error": err.message});
         }
-        return res.json({"success": true, "data": results});
+        return res.json({"success": true, "data": results[0].base_filename});
     });
 });
 
