@@ -49,8 +49,8 @@ Screenshot.prototype.requestScreenshot = function(url, key, cb) {
             roomCatalogue.addRoom({url: url}, (err, room_id) => {
                 // add job
                 if (err) return cb(err);
-                queue.addJob(room_id, url, err => {
-                    return cb(err, null);
+                queue.addJob(room_id, url, (err, res) => {
+                    return cb(err, res);
                 });
             });
         }   
