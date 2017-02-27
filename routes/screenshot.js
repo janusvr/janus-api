@@ -28,9 +28,8 @@ var upload = multer({
         bucket: global.config.aws.screenshotBucket,
         key: function(req, file, cb) {
             // create the filename (md5 hash of date + original extension)
-            var extension = path.extname(file.originalname);
-            var filename = crypto.createHash('md5')
-                .update(Date.now().toString()).digest('hex') + extension;
+            var fields = req.body;
+            var filename = fields.base_filename;
             cb(null, filename);
         }
     })
@@ -42,9 +41,7 @@ router.post('/add', oauth.authenticate(), upload.single('file'), (req, res, next
     // "job_id": optional, the job to complete
     // "room_id": the id of the room
     // "key": the type of screenshot
-    console.log(req.body);
     var fields = req.body; 
-    console.log('fields', fields);
     fields.value = req.file.location;
     if (fields.room_id) fields.room_id = parseInt(fields.room_id, 10);
     async.waterfall([ 
@@ -79,7 +76,7 @@ router.get('/get', (req, res) => {
             console.log(err);
             return res.json({"success": false, "error": err.message});
         }
-        return res.json({"success": true, "data": results[0].base_filename});
+        return res.json({"success": true, "data": 'https://' + global.config.aws.screenshotBucket + '.s3.amazonaws.com/' + results[0].base_filename});
     });
 });
 
