@@ -18,13 +18,13 @@ Server.prototype.start = function (cb) {
     //this.ws.use(bodyParser.raw({ type: "application/x-www-form-urlencoded"}));
     this.ws.use(bodyParser.urlencoded({ extended: false}));
  
+    // Add CORS headers to all responses
     this.ws.use(function(req, res, next) {
-
         res.header('Access-Control-Allow-Origin', req.headers.origin);
         res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST');
-	if (req.headers['Access-Control-Request-Headers'] || req.headers['access-control-request-headers'])
+	    if (req.headers['Access-Control-Request-Headers'] || req.headers['access-control-request-headers'])
             res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] + ', Authorization');
-	next();
+	    next();
     });
     // include routes
     var router = require("./routes/index.js");
@@ -35,9 +35,6 @@ Server.prototype.start = function (cb) {
     this.webserver.listen(config.webServerPort, "::");
     console.log('Webserver (http) started on port: ' + config.webServerPort);
     
-    // start https server
-    this.webserverHttps = https.createServer(config.ssl.options, this.ws).listen(config.ssl.port);
-    console.log('Webserver (https) started on port: ' + config.ssl.port);
     
     // log start time
     console.log('Start Date/Time: ' + Date());
