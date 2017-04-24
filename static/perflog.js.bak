@@ -1,0 +1,80 @@
+(function() {
+
+function GPUChart() {
+
+    this.maxftChart;
+    this.chartData;
+    this.all;
+    this.getData(function(data) {
+        var data = JSON.parse(data);
+
+        var h=1000, w=1920;
+        this.svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
+        var svg = this.svg;
+
+        var margin = {top: 20, right: 20, bottom: 30, left: 80};
+        var width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom;
+    
+        this.ndx = crossfilter(data.data);
+        console.log("raw data", data);
+        this.dim = this.ndx.dimension(function(d) { return d.gpudevice });
+        this.group = this.dim.group();
+   
+        this.dim2 = this.ndx.dimension(function(d) { return [d.gpudevice, d.maxftGPU] }, true);
+        this.group2 = this.dim2.group();
+
+        console.log('dim2', this.dim2);
+
+        this.groupSize = 50;
+        this.gpuData = this.group.top(this.groupSize);
+
+        var x = d3.scaleOrdinal([0, width]),
+            y = d3.scaleLinear().rangeRound([height, 0]);
+        var g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+        x.domain(this.gpuData.map(function(d) { return d.key }))
+         .range(this.gpuData.map(function(d, i) { return (width / this.groupSize) * i }.bind(this))); 
+        y.domain([0, d3.max(this.gpuData, function(d) { return d.value})]);
+
+        g.append("g")
+          .attr("class", "axis axis--x")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        g.append("g")
+          .attr("class", "axis axis--y")
+          .call(d3.axisLeft(y).ticks(10))
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", "0.71em")
+          .attr("text-anchor", "end")
+          .text("#");
+
+        g.selectAll(".bar")
+        .data(this.gpuData)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.key); })
+          .attr("y", function(d) { return y(d.value); })
+          .attr("width", 15)
+          .attr("height", function(d) { return height - y(d.value) }); 
+    }.bind(this));
+}
+
+GPUChart.prototype.getData = function(cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+            return cb(xhr.responseText)
+        }
+    };
+    xhr.open('GET', '/perflog', true);
+    xhr.send();
+}
+
+var cm = new GPUChart();
+
+})();

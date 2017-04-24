@@ -24,6 +24,8 @@ if (global.config.apis.screenshot.enabled) {
     router.use('/queue', require('./queue'));
 }
 
+
+
 if (global.config.apis.popularRooms.enabled) {
     router.get('/getPopularRooms', function (req, res) {
         var limit = parseInt(req.query.limit, 10) || 20,
@@ -107,6 +109,8 @@ if (global.config.apis.perfLog.enabled) {
         password : config.MySQL_Password,
         database : config.apis.perfLog.db
     });
+    const getLogQuery = "SELECT * FROM log;";
+
     router.post('/perflog', (req, res) => {
         if (!Object.prototype.hasOwnProperty.call(req.body, 'data'))
             return res.json({"succes": false, "error": "Must include data parameter"});
@@ -142,7 +146,21 @@ if (global.config.apis.perfLog.enabled) {
                 return res.json({"success": true, "error": "success"}); 
         });
     });
+
+    router.get('/perflog', (req, res) => {
+        // TODO: pipe the db response into the http response, reduce redundant data
+        this._perflog.query(getLogQuery, (err, results) => {
+            if (err) return res.json({"success": false, "error": "DB error"});
+            return res.json({"success": true, "data": results});
+        });
+    });
+    router.get('/perflog/view', (req, res, next) => {
+        res.render('perflog');
+    });
 }
+
+
+
 router.get('/', function (req, res) {
     res.send(200, '');
 });

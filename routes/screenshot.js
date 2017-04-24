@@ -27,14 +27,21 @@ var upload = multer({
         s3: s3,
         bucket: global.config.aws.screenshotBucket,
         key: function(req, file, cb) {
+            console.log('req.body in upload key', req.body);
             var filename = file.originalname;
             console.log("filename: ", filename);
             cb(null, filename);
         }
     })
 });
+var bodyParser = require('body-parser');
 
-router.post('/add', oauth.authenticate(), upload.single('file'), (req, res, next) => { 
+function test (req, res, next) {
+    console.log(req);
+    next();
+}
+
+router.post('/add', bodyParser.raw(), test, oauth.authenticate(), upload.any(), (req, res, next) => { 
     // Client must POST a multipart upload with fields:
     // "file": the image
     // "job_id": optional, the job to complete

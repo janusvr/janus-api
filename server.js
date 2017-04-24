@@ -26,15 +26,19 @@ Server.prototype.start = function (cb) {
             res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] + ', Authorization');
 	    next();
     });
+    //
+    this.ws.use("/static", express.static('static'));
     // include routes
     var router = require("./routes/index.js");
+    this.ws.set('view engine', 'pug');
     this.ws.use(router);
 
     // start http server
     this.webserver = http.createServer(this.ws)
     this.webserver.listen(config.webServerPort, "::");
     console.log('Webserver (http) started on port: ' + config.webServerPort);
-    
+   
+     
     
     // log start time
     console.log('Start Date/Time: ' + Date());
