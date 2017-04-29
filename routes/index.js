@@ -109,7 +109,7 @@ if (global.config.apis.perfLog.enabled) {
         password : config.MySQL_Password,
         database : config.apis.perfLog.db
     });
-    const getLogQuery = "SELECT * FROM log;";
+    const getLogQuery = "SELECT * FROM log WHERE maxftGPU != 2147483648 AND maxftCPU != 2147483648;";
 
     router.post('/perflog', (req, res) => {
         if (!Object.prototype.hasOwnProperty.call(req.body, 'data'))
