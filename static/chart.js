@@ -35,7 +35,7 @@ function drawDashboard() {
         
         var sysmemFilter = new google.visualization.ControlWrapper({
             'controlType': 'NumberRangeFilter',
-            'containerId': 'filter_div',
+            'containerId': 'sysmem_filter_div',
             'options': {
                 'filterColumnLabel': 'sysmem',
             },
@@ -45,6 +45,7 @@ function drawDashboard() {
         var gpuFilter = new google.visualization.ControlWrapper({
             controlType: 'CategoryFilter',
             containerId: 'gpu_filter_div',
+            state: { selectedValues: ["GeForce GTX 970/PCIe/SSE2"] },
             options: {
                 filterColumnLabel: 'gpudevice',
                 ui: {
@@ -81,6 +82,35 @@ function drawDashboard() {
                 }
             }
         });
+        
+        var osFilter = new google.visualization.ControlWrapper({
+            controlType: 'CategoryFilter',
+            containerId: 'os_filter_div',
+            options: {
+                filterColumnLabel: "OS",
+                ui: {
+                    label: "OS",
+                    caption: "Filter by OS",
+                    allowNone: true,
+                    allMultiple: true 
+                }
+            }
+        });
+        
+        var rendermodeFilter = new google.visualization.ControlWrapper({
+            controlType: 'CategoryFilter',
+            containerId: 'rendermode_filter_div',
+            options: {
+                filterColumnLabel: "rendermode",
+                ui: {
+                    label: "Rendermode",
+                    caption: "Filter by rendermode",
+                    allowNone: true,
+                    allMultiple: true 
+                }
+            }
+        });
+
         // create the chart
         var opts = {
             chartType: 'ColumnChart',
@@ -137,7 +167,7 @@ function drawDashboard() {
             }).draw();
         });
 
-        dashboard.bind([gpuFilter, versionFilter, cpuFilter, sysmemFilter], chart);
+        dashboard.bind([gpuFilter, versionFilter, cpuFilter, sysmemFilter, osFilter, rendermodeFilter], chart);
         dashboard.draw(dt);
     });
 }
