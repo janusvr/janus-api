@@ -67,7 +67,7 @@ describe('server', () => {
                     done(); 
                 });
             });
-            it('should return 200 when /getPopularRooms is requested over https', (done) => {
+            it.skip('should return 200 when /getPopularRooms is requested over https', (done) => {
                 request
                 .get('https://localhost:8081/getPopularRooms')
                 .end( (err, res) => {
