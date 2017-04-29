@@ -13,6 +13,12 @@ var getData = function(cb) {
     console.log("Fetching data");
 }
 
+function median(values) {
+    values.sort(function(a,b){return a - b});
+    var piv = Math.floor(values.length / 2);
+    return values.length % 2 ? values[piv] : (values[piv] + values[piv] / 2.0);
+}
+
 function drawDashboard() {
     getData(function(data) {
         data = JSON.parse(data);
@@ -89,38 +95,38 @@ function drawDashboard() {
             var gpuGroup = google.visualization.data.group(chart.getDataTable(), [20], [
             {
                 column: 9,
-                label: 'minftCPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'minftCPU (median)',
+                aggregation: median,
                 type: 'number'
             }, 
             {
                 column: 10,
-                label: 'medianftCPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'medianftCPU (median)',
+                aggregation: median,
                 type: 'number'
             }, 
             {
                 column: 11,
-                label: 'maxftCPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'maxftCPU (median)',
+                aggregation: median,
                 type: 'number'
             }, 
             {
                 column: 12,
-                label: 'minftGPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'minftGPU (median)',
+                aggregation: median,
                 type: 'number'
             }, 
             {
                 column: 13, 
-                label: 'medianftGPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'medianftGPU (median)',
+                aggregation: median,
                 type: 'number'
             }, 
             {
                 column: 14,
-                label: 'maxftGPU (avg)',
-                aggregation: google.visualization.data.avg,
+                label: 'maxftGPU (median)',
+                aggregation: median,
                 type: 'number' 
             }]);
             new google.visualization.ChartWrapper({
