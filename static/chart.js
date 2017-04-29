@@ -1,5 +1,5 @@
 (function() { 
-google.charts.load('current', {'packages':['corechart', 'controls']});
+google.charts.load('visualization', '1.0',  {'packages':['corechart', 'controls']});
 google.charts.setOnLoadCallback(drawDashboard);
 var getData = function(cb) {
     var xhr = new XMLHttpRequest();
@@ -24,29 +24,26 @@ function drawDashboard() {
         var preppedData = [keys].concat(tmp);
         var dt = google.visualization.arrayToDataTable(preppedData);
 
-        console.log("DataTable:", dt);
-        // create some groups
-
         var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
         // create the filters
-        /*
-        var sysmemRangeSlider = new google.visualization.ControlWrapper({
+        
+        var sysmemFilter = new google.visualization.ControlWrapper({
             'controlType': 'NumberRangeFilter',
             'containerId': 'filter_div',
             'options': {
                 'filterColumnLabel': 'sysmem',
-                'minValue': 0,
-                'maxValue': 32
             },
-            'state': { 'lowValue': 0, 'highValue': 8 }
+            'state': { 'lowValue': 0, 'highValue': 32 }
         });
-        */
+        
         var gpuFilter = new google.visualization.ControlWrapper({
             controlType: 'CategoryFilter',
             containerId: 'gpu_filter_div',
             options: {
                 filterColumnLabel: 'gpudevice',
                 ui: {
+                    label: "GPU",
+                    caption: "Filter by GPU",
                     allowNone: true,
                     allowMultiple: true
                 }
@@ -58,12 +55,26 @@ function drawDashboard() {
             options: {
                 filterColumnLabel: 'version',
                 ui: {
+                    label: "Version",
+                    caption: "Filter by version",
                     allowNone: true,
                     allowMultiple: true
                 }
             }
         });
-
+        var cpuFilter = new google.visualization.ControlWrapper({
+            controlType: 'CategoryFilter',
+            containerId: 'cpu_filter_div',
+            options: {
+                filterColumnLabel: "processordevice",
+                ui: {
+                    label: "CPU",
+                    caption: "Filter by CPU",
+                    allowNone: true,
+                    allMultiple: true 
+                }
+            }
+        });
         // create the chart
         var opts = {
             chartType: 'ColumnChart',
@@ -73,31 +84,54 @@ function drawDashboard() {
         var chart = new google.visualization.ChartWrapper(opts);
 
         google.visualization.events.addListener(chart, 'ready', function() {
-            var gpuGroup = google.visualization.data.group(chart.getDataTable(), [20], [{
+            // once the chart has been filtered, this callback fires
+            // and we bucket the filtered data, then create a new chart with that data
+            var gpuGroup = google.visualization.data.group(chart.getDataTable(), [20], [
+            {
+                column: 9,
+                label: 'minftCPU (avg)',
+                aggregation: google.visualization.data.avg,
+                type: 'number'
+            }, 
+            {
+                column: 10,
+                label: 'medianftCPU (avg)',
+                aggregation: google.visualization.data.avg,
+                type: 'number'
+            }, 
+            {
+                column: 11,
+                label: 'maxftCPU (avg)',
+                aggregation: google.visualization.data.avg,
+                type: 'number'
+            }, 
+            {
                 column: 12,
                 label: 'minftGPU (avg)',
                 aggregation: google.visualization.data.avg,
                 type: 'number'
-            }, {
+            }, 
+            {
                 column: 13, 
                 label: 'medianftGPU (avg)',
                 aggregation: google.visualization.data.avg,
                 type: 'number'
-            }, {
+            }, 
+            {
                 column: 14,
                 label: 'maxftGPU (avg)',
                 aggregation: google.visualization.data.avg,
                 type: 'number' 
             }]);
-            console.log(gpuGroup);
             new google.visualization.ChartWrapper({
                 chartType: 'ColumnChart',
                 containerId: 'chart_div',
-                dataTable: gpuGroup
+                dataTable: gpuGroup,
+                options: { width: 1280, height: 720 }
             }).draw();
         });
 
-        dashboard.bind([gpuFilter, versionFilter], chart);
+        dashboard.bind([gpuFilter, versionFilter, cpuFilter, sysmemFilter], chart);
         dashboard.draw(dt);
     });
 }
