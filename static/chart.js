@@ -16,7 +16,7 @@ var getData = function(cb) {
 function median(values) {
     values.sort(function(a,b){return a - b});
     var piv = Math.floor(values.length / 2);
-    return values.length % 2 ? values[piv] : (values[piv] + values[piv] / 2.0);
+    return values.length % 2 ? values[piv] : (values[piv] + values[piv]) / 2.0;
 }
 
 function drawDashboard() {
