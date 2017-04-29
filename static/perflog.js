@@ -1,6 +1,6 @@
 (function() {
 
-function Chart(width, height, data) {
+function Chart(width, height, data, div) {
 
     this.maxftChart;
     this.chartData;
@@ -13,18 +13,18 @@ function Chart(width, height, data) {
     this.width = +this.svg.attr("width") - this.margin.left - this.margin.right;
     this.height = +this.svg.attr("height") - this.margin.top - this.margin.bottom;
 
-    this.x = d3.scaleOrdinal([0, this.width]),
-        this.y = d3.scaleLinear().rangeRound([this.height, 0]);
-    this.x.domain(this.gpuData.map(function(d) { return d.key }))
-     .range(this.gpuData.map(function(d, i) { return (this.width / this.groupSize) * i }.bind(this))); 
-    this.y.domain([0, d3.max(this.gpuData, function(d) { return d.value})]);
 
     this.drawChart();
 }
 
 Chart.prototype.drawChart = function() {
+        this.x = d3.scaleOrdinal([0, this.width]);
+        this.y = d3.scaleLinear().rangeRound([this.height, 0]);
+        this.x.domain(this.gpuData.map(function(d) { return d.key }))
+              .range(this.gpuData.map(function(d, i) { return (this.width / this.groupSize) * i }.bind(this))); 
+        this.y.domain([0, d3.max(this.gpuData, function(d) { return d.value})]);
         var g = this.svg.append("g").attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
+       console.log(this.x);
         g.append("g")
           .attr("class", "axis axis--x")
           .attr("transform", "translate(0," + this.height + ")")
@@ -51,7 +51,11 @@ Chart.prototype.drawChart = function() {
 
 }
 
-getData = function(cb) {
+ChartController = function() {
+    this.getData(this.onData.bind(this));
+}
+
+ChartController.prototype.getData = function(cb) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -62,8 +66,9 @@ getData = function(cb) {
     xhr.send();
 }
 
-getGPUStats = function(data, gpustring) {
-    var gpus = data.data.filter(function(d) { return d.gpudevice.match(gpustring) });
+ChartController.prototype.getGPUStats = function(data, gpustring) {
+    console.log('data', data);
+    var gpus = data.filter(function(d) { return d.gpudevice.match(gpustring) });
     var gpustotal = gpus.length;
     var gpus = gpus.reduce(function(a, b) { 
         a.maxftGPU += b.maxftGPU;
@@ -76,28 +81,31 @@ getGPUStats = function(data, gpustring) {
     return gpus;
 } 
 
-getData(function(data) {
-    var data = JSON.parse(data);
-    this.ndx = crossfilter(data.data);
+ChartController.prototype.onData = function(data) {
+    this.data = JSON.parse(data).data ;
+    console.log(this.data);
+    var ndx = crossfilter(this.data);
 
-    this.dim = this.ndx.dimension(function(d) { return d.gpudevice });
-    this.group = this.dim.group();
+    var dim = ndx.dimension(function(d) { return d.gpudevice });
+    var group = dim.group();
 
-    this.dim2 = this.ndx.dimension(function(d) { return [d.gpudevice, d.maxftGPU] }, true);
-    this.group2 = this.dim2.group();
+    var gpus = group.top(group.size()),
+        gpulist = gpus.map(function(d) { return d.key});
+    console.log(gpulist);
+    var groupSize = 5;
+    var gpuData = group.top(groupSize);
 
-    this.groupSize = 5;
-    var gpuData = this.group.top(this.groupSize);
-
-    var gtx1070 = getGPUStats(data, "1070");
-    var gtx1080 = getGPUStats(data, "1080");
+    var gtx1070 = this.getGPUStats(this.data, "1070");
+    var gtx1080 = this.getGPUStats(this.data, "1080");
     var chartData = [
         {key: "GTX 1070 maxftGPU", value: gtx1070.maxftGPU},
         {key: "GTX 1070 minftGPU", value: gtx1070.minftGPU},
         {key: "GTX 1080 maxftGPU", value: gtx1080.maxftGPU},
         {key: "GTX 1080 minftGPU", value: gtx1080.minftGPU}
-    ]; 
-    var cm = new Chart(640, 480, chartData);
-    
-});
+    ];
+  
+    this.chart = new Chart(640, 480, chartData);
+};
+var x = new ChartController();
+console.log(x);
 })();
