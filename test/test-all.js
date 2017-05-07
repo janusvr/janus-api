@@ -34,7 +34,8 @@ describe('server', () => {
               .hmset('clients:client', {
                 clientId: 'client',
                 clientSecret: 'secret',
-                grants: "password, authorization_code"
+                userId: 'username',
+                grants: "password,client_credentials,authorization_code"
               })
               .exec(function (err) {
                 if (err) throw new Error(err); 
@@ -45,13 +46,14 @@ describe('server', () => {
             var authString = new Buffer('client:secret').toString('base64');
             request
             .post('http://localhost:8080/oauth/token')
-            .send('grant_type=password')
-            .send('username=username')
-            .send('password=password')
+            .send('grant_type=client_credentials')
+            //.send('username=username')
+            //.send('password=password')
             .set('Authorization', 'Basic '+authString)
             .end( (err, res) => {
                 if (err) throw new Error(err);
-                expect(res.body).to.contain.all.keys(['access_token', 'token_type', 'expires_in', 'refresh_token']);
+                console.log(res.body);
+                expect(res.body).to.contain.all.keys(['access_token', 'token_type', 'expires_in']);
                 done();
             });
         });
