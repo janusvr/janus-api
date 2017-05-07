@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -16,7 +15,8 @@ var fmt = require('util').format;
 var formats = {
   client: 'clients:%s',
   token: 'tokens:%s',
-  user: 'users:%s'
+  user: 'users:%s',
+  code: 'codes:%s'
 };
 
 /**
@@ -39,6 +39,24 @@ module.exports.getAccessToken = function(bearerToken) {
 };
 
 /**
+ * Get authorization code.
+ */
+
+module.exports.getAuthorizationCode = function(authorizationCode) {
+    return db.hgetallAsync(fmt(formats.code, authorizationCode.code))
+        .then(function(code) {
+            if (!code) 
+                return;
+            return {
+                code: code.code,
+                expiresAt: code.expiresAt,
+                clientId: code.clientId,
+                user: code.user
+            }
+        });
+};
+
+/**
  * Get client.
  */
 
@@ -48,13 +66,28 @@ module.exports.getClient = function(clientId, clientSecret) {
       if (!client || client.clientSecret !== clientSecret) {
         return;
       }
-
       return {
         clientId: client.clientId,
         clientSecret: client.clientSecret,
-        grants: client.grants.split(',')
+        grants: client.grants.split(','),
+        userId: client.userId
       };
     });
+};
+
+/**
+ * Get user from client.
+ */
+
+module.exports.getUserFromClient = function(client) {
+    return db.hgetallAsync(fmt(formats.user, client.userId))
+       .then(function(user) {
+            if (!client)
+                return false;
+            return {
+                id: user.id
+            }
+        });
 };
 
 /**
@@ -103,12 +136,28 @@ module.exports.saveToken = function(token, client, user) {
     accessToken: token.accessToken,
     accessTokenExpiresAt: token.accessTokenExpiresAt,
     client: client.clientId,
-    refreshToken: token.refreshToken,
-    refreshTokenExpiresAt: token.refreshTokenExpiresAt,
+    //refreshToken: token.refreshToken,
+    //refreshTokenExpiresAt: token.refreshTokenExpiresAt,
     user: user.id
   };
   return bluebird.all([
     db.hmsetAsync(fmt(formats.token, token.accessToken), data),
     db.hmsetAsync(fmt(formats.token, token.refreshToken), data)
   ]).return(data);
+};
+
+/**
+ * Save authorization code.
+ */
+
+module.exports.saveAuthorizationCode = function(code, client, user) {
+    var data = {
+        expires: code.expiresAt,
+        client: client.clientId,
+        code: code.authorizationCode,
+        user: user.id
+    }
+    return bluebird.all([
+        db.hmsetAsync(fmt(formats.code, code.authorizationCode), data)
+    ]).return(code);
 };
