@@ -27,6 +27,8 @@ function Queue() {
             this._conn.query(this._createTrigger, err => {if (err) throw new Error(err); });
         });
     });
+    this._checkJobQueryById = "SELECT * FROM `jobqueue` WHERE `job_id` = ?";
+    this._checkJobQueryByUrl = "SELECT * FROM `jobqueue` WHERE `url` = ?";
 }
 
 /**
@@ -79,6 +81,16 @@ Queue.prototype.getJob = function (cb) {
                 });
             }); 
         });
+    });
+};
+
+Queue.prototype.checkJob = function(opts, cb) {
+    var byJobId = typeof opts.job_id !== "undefined";
+    var query = byJobId ? this._checkJobQueryById : this._checkJobQueryByUrl;
+    var args = byJobId ? opts.job_id : opts.url;
+
+    this._conn.query(query, [args], (err, res) => {
+        return cb(err, res);
     });
 };
 
