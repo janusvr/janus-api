@@ -52,7 +52,7 @@ Server.prototype.close = function (cb) {
     this.webserver.close( err => {
         return cb(err);
     });
-}
+};
 
 if (require.main === module) {
     (new Server()).start();

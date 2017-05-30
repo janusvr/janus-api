@@ -19,11 +19,13 @@ router.get('/secret', oauth.authenticate(), (req, res) => {
     res.send('Secret');
 });
 
+
 if (global.config.apis.screenshot.enabled) {
     router.use('/screenshot', require('./screenshot'));
     router.use('/queue', require('./queue'));
 }
 
+router.use('/room', require('./room'));
 
 
 if (global.config.apis.popularRooms.enabled) {
