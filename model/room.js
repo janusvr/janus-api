@@ -18,7 +18,6 @@ Room.prototype.get = function(url, cb) {
             });
         }, 
         (screenshots, callback) => {
-            console.log('screen', screenshots);
             this._conn.query(this._getRoomByUrlQuery, url, (err, res) => {
                 if (res.length === 0)
                     callback(err, []);
@@ -31,27 +30,22 @@ Room.prototype.get = function(url, cb) {
     ], function (err, results) {
         return cb(err, results);
     });
-
 }
 
-
 Room.prototype.search = function(params, cb) {
+    var keyword = "%" +  (params.keyword || "") + "%";
     var args = [ 
-        "%" + (params.meta_keywords || "") + "%",
-        "%" + (params.meta_description || "") + "%",
-        "%" + (params.room_title || "") + "%",
+        keyword, keyword, keyword,
         params.offset ? parseInt(params.offset, 10) : 0,
         params.limit ? parseInt(params.limit, 10) : 20,
     ];
-    console.log(args);
-    var screenshot = (params.has_screenshot === "true");
+    var has_equi = (params.has_equi === "true");
     var query = " SELECT a.url, a.roomtitle, a.meta_description, a.meta_keywords, b.`value` as equi FROM crawl_rooms a "
-              + " LEFT JOIN screenshots b ON a.url = b.url AND b.key = 'equi' "
+              + (has_equi ? " INNER " : " LEFT ") + " JOIN screenshots b ON a.url = b.url AND b.key = 'equi' "
               + " WHERE a.janus_enabled = 1 "
-              + " AND a.meta_keywords LIKE ? AND a.meta_description LIKE ? "
-              + " AND a.roomtitle LIKE ? "
+              + " AND (a.meta_keywords LIKE ? OR a.meta_description LIKE ? "
+              + "       OR a.roomtitle LIKE ? ) "
               + " LIMIT ?, ? ";
-    console.log(query);
     this._conn.query(query, args, (err, res) => {
         return cb(err, res);
     });
