@@ -26,3 +26,7 @@ router.get('/search', (req, res) => {
         });
     }
 });
+
+router.get('/roomsearch', (req, res) => {
+    res.render('roomsearch');
+});
