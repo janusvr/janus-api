@@ -40,8 +40,8 @@ Room.prototype.search = function(params, cb) {
         "%" + (params.meta_keywords || "") + "%",
         "%" + (params.meta_description || "") + "%",
         "%" + (params.room_title || "") + "%",
-        params.offset || 0,
-        params.limit || 20,
+        params.offset ? parseInt(params.offset, 10) : 0,
+        params.limit ? parseInt(params.limit, 10) : 20,
     ];
     console.log(args);
     var screenshot = (params.has_screenshot === "true");
