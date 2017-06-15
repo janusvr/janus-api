@@ -81,12 +81,12 @@ router.get('/get', (req, res) => {
         return res.json({"success": false, "error": "Must provide a URL parameter"});
     var key = req.query.key || '%'; 
     var url = req.query.url;
-    screenshot.requestScreenshot(url, key, (err, results) => {
+    screenshot.getScreenshotByUrl(url, key, (err, results) => {
         if (err) {
             console.log(err);
             return res.json({"success": false, "error": err.message});
         }
-        return res.json({"success": true, "data": 'https://' + global.config.aws.screenshotBucket + '.s3.amazonaws.com/' + results[0].base_filename});
+        return res.json({"success": true, "data": results});
     });
 });
 
