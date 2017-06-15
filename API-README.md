@@ -13,10 +13,10 @@ GET /screenshot/get?url=http://test.com&key=thumbnail
 ```
 
 ### /room/search
-#### Parameters: `keyword, [offset], [limit], [has_equi]`
+#### Parameters: `keyword, [offset=0], [limit=1], [has_equi]`
 #### Returns:
 
-JSON object with `success`, `data`, and `error` properties. If an error occured, `success` will be set to false, and `error` will contain an error message. If no errors occurred, `data` will be an array of rooms that contained `keyword` in the `meta_keywords`, `meta_description`, or `roomtitle` fields.
+JSON object with `success`, `data`, and `error` properties. If an error occured, `success` will be set to false, and `error` will contain an error message. If no errors occurred, `data` will be an array of rooms that contained `keyword` in the `meta_keywords`, `meta_description`, or `roomtitle` fields. `offset` and `limit` can be used for pagination. To only get rooms that have equi screenshots, pass `has_equi` with a value of `true`.
 
 #### Example
 ```
