@@ -22,6 +22,5 @@ JSON object with `success`, `data`, and `error` properties. If an error occured,
 ```
 GET /room/search?keyword=test&offset=0&limit=1
 
-
 {"success":true, "data":[{"url":"http://paradox.spyduck.net/rooms/vape/index.html","roomtitle":"The VR Vape Bar | The World's First and Greatest Virtual Vape Bar","meta_description":"","meta_keywords":"","equi":"https://thumbnails-janusvr.s3-us-west-2.amazonaws.com/5c6dc233e35ee20485999b22ba246ab7/equi.jpg"}]}
 ```
