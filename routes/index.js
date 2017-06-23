@@ -19,6 +19,33 @@ router.get('/secret', oauth.authenticate(), (req, res) => {
     res.send('Secret');
 });
 
+if (global.config.apis.karanStudy.enabled) {
+    var studyModel = require('../model/karanStudy.js'),
+        multer = require('multer')();
+    router.post('/karanStudy', multer.none(), function(req, res) {
+        // takes a string, adds it to db table
+        var str = req.body.string;
+        studyModel.post(str, (err, rows) => {
+            if (err) return res.status(502).send('Error adding strings: ' + err.message);
+            return res.status(200).send('test'); 
+        });
+    });
+    router.get('/karanStudy', function(req, res) {
+        // grabs all rows from table, return as csv with newlines
+        studyModel.get( (err, rows) => {
+            if (err) return res.status(502).send('Error getting strings');
+            var response = rows.map((x) => { return x.studyResponse }).join('\n');
+            console.log(response);
+            res.set({
+                'Content-Disposition': 'attachment; filename="study.txt"',
+                'Content-Type': 'text/plain',
+                'Content-Length': response.length
+            });
+            return res.send(response);
+        }); 
+    });
+}
+
 
 if (global.config.apis.screenshot.enabled) {
     router.use('/screenshot', require('./screenshot'));
