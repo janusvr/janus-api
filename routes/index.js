@@ -35,7 +35,6 @@ if (global.config.apis.karanStudy.enabled) {
         studyModel.get( (err, rows) => {
             if (err) return res.status(502).send('Error getting strings');
             var response = rows.map((x) => { return x.studyResponse }).join('\n');
-            console.log(response);
             res.set({
                 'Content-Disposition': 'attachment; filename="study.txt"',
                 'Content-Type': 'text/plain',
