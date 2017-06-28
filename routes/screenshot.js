@@ -13,7 +13,7 @@ this._conn = require('../model/mysql-db').getPool();
 
 // set up oauth server
 var oauth = new OAuthServer({
-    model: require('../model'),
+    model: require('../model/oauth-redis'),
 });
 
 aws.config.update(global.config.aws);
