@@ -15,7 +15,7 @@ var oauth = new OAuthServer({
 
 router.post('/oauth/token', oauth.token());
 
-router.get('/secret', oauth.authenticate(), (req, res) => {
+router.get('/secret', oauth.authenticate({scope: 'secret'}), (req, res) => {
     res.send('Secret');
 });
 

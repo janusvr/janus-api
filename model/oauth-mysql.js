@@ -148,9 +148,10 @@ module.exports.saveToken = function(token, client, user) {
 //    db.hmsetAsync(fmt(formats.token, token.accessToken), data),
 //    db.hmsetAsync(fmt(formats.token, token.refreshToken), data)
 //  ]).return(data);
-    var setAccessToken = "INSERT INTO oauth_accessToken (accessToken, clientId, expires, user) VALUES (?, ?, ?, ?)",
+    console.log(`Save token, ${JSON.stringify(token, null, 4)}`);
+    var setAccessToken = "INSERT INTO oauth_accessToken (accessToken, clientId, expires, user, scope) VALUES (?, ?, ?, ?, ?)",
         setRefreshToken = "INSERT INTO oauth_refreshToken (clientId, expires, refreshToken) VALUES (?, ?, ?)";
-    return pool.query(setAccessToken, [token.accessToken, client.clientId, token.accessTokenExpiresAt, user.id])
+    return pool.query(setAccessToken, [token.accessToken, client.clientId, token.accessTokenExpiresAt, user.id, token.scope])
     .then(rows => {
         return {
             accessToken: token.accessToken,
@@ -173,3 +174,33 @@ module.exports.saveAuthorizationCode = function(code, client, user) {
     console.log(`saveAuthorizationCode()code: ${code}, client: ${client}, user: ${user}`);
 };
 
+module.exports.validateScope = function(user, client, scope) {
+// Returns validated scopes to be used or a falsy value to reject
+// TODO: Should take a space-separated string of one-word scopes, and validate each separately
+ 
+    console.log('validateScope', user, client, scope);
+    var query = "SELECT * FROM oauth_scope WHERE scope = ? AND userId = ? AND clientId = ?";
+    return pool.query(query, [scope, user.id, client.clientId]).then(rows => {
+        console.log('scope returned', rows);
+        if (rows.length === 0)
+            return false;
+        return rows[0].scope === scope ? scope : false;
+    }).catch(err => {
+        console.log(err);
+        return;
+    });
+}
+
+module.exports.verifyScope = function(token, scope) {
+// Returns true if the access token passes, false otherwise.
+    console.log(`verifyScope, ${JSON.stringify(token, null, 4)}, ${scope}`);
+    var query = "SELECT * FROM oauth_accessToken WHERE accessToken = ? AND scope = ?;";
+    return pool.query(query, [token.accessToken, scope]).then(rows => {
+        if (rows.length === 0)
+            return false;
+        return true;
+    }).catch(err => {
+        console.log(err);
+        return;
+    }); 
+}
