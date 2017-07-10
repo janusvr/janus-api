@@ -44,6 +44,7 @@ describe('server', () => {
         });
         it('should issue a token when provided correct credentials', done => {
             var authString = new Buffer('client:secret').toString('base64');
+            console.log('authstring', authString);
             request
             .post('http://localhost:8080/oauth/token')
             .send('grant_type=client_credentials')

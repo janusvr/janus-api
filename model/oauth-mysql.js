@@ -56,11 +56,16 @@ module.exports.getClient = function(clientId, clientSecret) {
 //        grants: client.grants.split(','),
 //        userId: client.userId
 //      };
-    var query = "SELECT * FROM oauth_client WHERE clientId = ? AND clientSecret = ?;"
+    var query = "SELECT * FROM oauth_client WHERE clientId = ? AND clientSecret = ?;";
+    var grantsQuery = "SELECT grants.description FROM oauth_client client INNER JOIN oauth_userClientGrants ucg ON ucg.clientId = client.clientId INNER JOIN oauth_grants grants on grants.id = ucg.grantId WHERE client.clientId = ? AND client.clientSecret = ?;";
     return pool.query(query, [clientId, clientSecret]).then(rows => {
         if (rows.length === 0)
             return;
-        return rows[0];
+        return pool.query(grantsQuery, [clientId, clientSecret]).then(grantRows => {
+            let retVal = rows[0];
+            retVal.grants = grantRows.map(a => a.description);
+            return retVal;
+        });
     }).catch(err => {
         console.log(err);
         return;
@@ -75,8 +80,8 @@ module.exports.getUserFromClient = function(client) {
 //    return {
 //        id: user.id
 //    }
-    var query = "SELECT user.id FROM user INNER JOIN oauth_client ON oauth_client.userId = user.id WHERE oauth_client.clientId = ?";
-    return pool.query(query, [client]).then(rows => {
+    var query = "SELECT user.id FROM user INNER JOIN oauth_client ON oauth_client.user = user.id WHERE oauth_client.clientId = ? AND oauth_client.clientSecret = ?";
+    return pool.query(query, [client.clientId, client.clientSecret]).then(rows => {
         if (rows.length === 0)
             return;
         return rows[0];
@@ -133,10 +138,27 @@ module.exports.getUser = function(username, password) {
  */
 
 module.exports.saveToken = function(token, client, user) {
+//  var data = {
+//    accessToken: token.accessToken,
+//    accessTokenExpiresAt: token.accessTokenExpiresAt,
+//    client: client.clientId,
+//    user: user.id
+//  };
 //  return bluebird.all([
 //    db.hmsetAsync(fmt(formats.token, token.accessToken), data),
 //    db.hmsetAsync(fmt(formats.token, token.refreshToken), data)
 //  ]).return(data);
+    var setAccessToken = "INSERT INTO oauth_accessToken (accessToken, clientId, expires, user) VALUES (?, ?, ?, ?)",
+        setRefreshToken = "INSERT INTO oauth_refreshToken (clientId, expires, refreshToken) VALUES (?, ?, ?)";
+    return pool.query(setAccessToken, [token.accessToken, client.clientId, token.accessTokenExpiresAt, user.id])
+    .then(rows => {
+        return {
+            accessToken: token.accessToken,
+            accessTokenExpiresAt: token.accessTokenExpiresAt,
+            client: client.clientId,
+            user: user.id
+        }
+    });
 };
 
 /**
@@ -147,5 +169,7 @@ module.exports.saveAuthorizationCode = function(code, client, user) {
 //    return bluebird.all([
 //        db.hmsetAsync(fmt(formats.code, code.authorizationCode), data)
 //    ]).return(code);
+    var query = "INSERT INTO oauth_authorizationCode (`code`, expiresAt, ClientId, user) VALUES (?, ?, ?, ?)";
+    console.log(`saveAuthorizationCode()code: ${code}, client: ${client}, user: ${user}`);
 };
 

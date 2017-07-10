@@ -10,7 +10,7 @@ this._conn = require('../model/mysql-db').getPool();
 var router = express.Router();
 // set up oauth server
 var oauth = new OAuthServer({
-    model: require('../model/oauth-redis'),
+    model: require('../model/oauth-mysql'),
 });
 
 router.post('/oauth/token', oauth.token());
