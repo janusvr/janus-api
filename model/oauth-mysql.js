@@ -176,15 +176,17 @@ module.exports.saveAuthorizationCode = function(code, client, user) {
 
 module.exports.validateScope = function(user, client, scope) {
 // Returns validated scopes to be used or a falsy value to reject
-// TODO: Should take a space-separated string of one-word scopes, and validate each separately
- 
-    console.log('validateScope', user, client, scope);
-    var query = "SELECT * FROM oauth_scope WHERE scope = ? AND userId = ? AND clientId = ?";
-    return pool.query(query, [scope, user.id, client.clientId]).then(rows => {
+    var query = "SELECT * FROM oauth_scope WHERE userId = ? AND clientId = ?";
+    return pool.query(query, [user.id, client.clientId]).then(rows => {
         console.log('scope returned', rows);
         if (rows.length === 0)
             return false;
-        return rows[0].scope === scope ? scope : false;
+        let allowed = new Set(rows.map(x => x.scope));
+        let supplied = scope.split(" ");
+        let validated = supplied.filter(x => allowed.has(x));
+        if (validated.length === 0)
+            return false;
+        return validated.join(" ");
     }).catch(err => {
         console.log(err);
         return;
@@ -193,7 +195,6 @@ module.exports.validateScope = function(user, client, scope) {
 
 module.exports.verifyScope = function(token, scope) {
 // Returns true if the access token passes, false otherwise.
-    console.log(`verifyScope, ${JSON.stringify(token, null, 4)}, ${scope}`);
     var query = "SELECT * FROM oauth_accessToken WHERE accessToken = ? AND scope = ?;";
     return pool.query(query, [token.accessToken, scope]).then(rows => {
         if (rows.length === 0)
