@@ -9,13 +9,20 @@ this._conn = require('../model/mysql-db').getPool();
 
 var router = express.Router();
 // set up oauth server
-var oauth = new OAuthServer({
+global.oauth = new OAuthServer({
     model: require('../model/oauth-mysql'),
 });
 
 router.post('/oauth/token', oauth.token());
 
-router.get('/secret', oauth.authenticate({scope: 'secret'}), (req, res) => {
+function getToken(req, res, next) {
+    if (!!req.headers.authorization)
+        req.token = req.headers.authorization.split(" ")[1];
+    else req.token = null;
+    return next();
+}
+
+router.get('/secret', oauth.authenticate({scope: 'secret'}), getToken, (req, res) => {
     res.send('Secret');
 });
 
@@ -49,6 +56,10 @@ if (global.config.apis.karanStudy.enabled) {
 if (global.config.apis.screenshot.enabled) {
     router.use('/screenshot', require('./screenshot'));
     router.use('/queue', require('./queue'));
+}
+
+if (global.config.apis.user.enabled) {
+    router.use('/user', require('./user'));
 }
 
 router.use('/room', require('./room'));
