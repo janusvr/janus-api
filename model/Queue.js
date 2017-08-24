@@ -57,25 +57,25 @@ Queue.prototype.getJob = function (cb) {
     this._conn.getConnection( (err, conn) => {
         conn.beginTransaction( err => {
             if (err) {
-                return conn.rollback( () => { throw err });
+                return conn.rollback( () => { conn.release(); throw err });
             }
             conn.query(this._getJobQuery, (err, res) => {
                 if (err) {
-                    return conn.rollback( () => { throw err });
+                    return conn.rollback( () => { conn.release(); throw err });
                 }
                 if (res.length == 0) {
                     // no jobs, rollback the connection and return an empty array
-                    return conn.rollback( () => { return cb(null, []); });
+                    return conn.rollback( () => { conn.release(); return cb(null, []); });
                 }
                 var results = res;
                 var job_id = res[0].job_id;
                 conn.query(this._updateJobQuery, ['RUN', job_id], (err) => {
                     if (err) {
-                        return conn.rollback( () => { throw err });
+                        return conn.rollback( () => { conn.release(); throw err });
                     }
                     conn.commit((err) => {
-                        if (err) throw err;
                         conn.release();
+                        if (err) throw err;
                         return cb(null, results);
                     }); 
                 });
