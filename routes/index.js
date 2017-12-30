@@ -69,7 +69,7 @@ if (global.config.apis.popularRooms.enabled) {
     router.get('/getPopularRooms', function (req, res) {
         var limit = parseInt(req.query.limit, 10) || 20,
             offset = parseInt(req.query.offset, 10) || 0,
-            orderBy = req.query.orderBy || "weight",
+            orderBy = req.query.orderBy || req.query.orderby || "weight",
             desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "",
             contains = req.query.urlContains ? "%" + req.query.urlContains + "%" : "%";
         var sql = "SELECT roomName, url as roomUrl, count, weight,";
