@@ -28,38 +28,6 @@ router.get('/secret', oauth.authenticate({scope: 'secret'}), getToken, (req, res
     res.send('Secret');
 });
 
-
-// get all users online, remove offline users from party mode results and return
-function filterStuckUsers(partyData)
-{
-    var sql = "SELECT userId FROM users WHERE updated_at > DATE_SUB(NOW() , INTERVAL 10 SECOND) ORDER BY userId";
-    _presence.query(sql, function(err, result) {
-        if (err) {
-            console.log(err);
-            return partyData;
-        }
-        var onlineUsers = [];
-        var rows = JSON.parse(JSON.stringify(result));
-        for (var i in rows)
-        {
-            onlineUsers.push(rows[i].userId);
-        }
-        var i = partyData.length;
-        while (i--)
-        {
-            if (partyData[i].userId)
-            {
-                if (!onlineUsers.includes(partyData[i].userId))
-                {
-                    partyData.splice(i,1);
-                }
-            }
-        }
-        return partyData;
-    });
-    return partyData;
-}
-
 if (global.config.apis.karanStudy.enabled) {
     var studyModel = require('../model/karanStudy.js'),
         multer = require('multer')();
@@ -176,8 +144,29 @@ if (global.config.apis.partyList.enabled) {
             }, function(err) {
                 if (err)
                     return res.json({"success": false});
-                rval.data = filterStuckUsers(rval.data);
-                return res.json(rval);
+                // get all users online, remove offline users from party mode results and return
+                var sql = "SELECT userId FROM users WHERE updated_at > DATE_SUB(NOW() , INTERVAL 10 SECOND) ORDER BY userId";
+                _presence.query(sql, function(err, result) {
+                    if (err) {
+                        console.log(err);
+                        return rval.data;
+                    }
+                    var onlineUsers = [];
+                    var rows = JSON.parse(JSON.stringify(result));
+                    for (var i in rows)
+                    {
+                        onlineUsers.push(rows[i].userId);
+                    }
+                    var i = rval.data.length;
+                    while (i--) {
+                        if (rval.data[i].userId) {
+                            if (!onlineUsers.includes(rval.data[i].userId)) {
+                                rval.data.splice(i,1);
+                            }
+                        }
+                    }
+                    return res.json(rval.data);
+                });
             });
         });
     });
