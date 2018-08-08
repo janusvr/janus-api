@@ -42,7 +42,6 @@ function filterStuckUsers(partyData)
         var rows = JSON.parse(JSON.stringify(result));
         for (var i in rows)
         {
-            console.log(rows[i]);
             onlineUsers.push(rows[i].userId);
         }
         var i = partyData.length;
