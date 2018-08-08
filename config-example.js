@@ -45,6 +45,13 @@ module.exports = {
         },
         partyList: {
             enabled: true,
+            presence_db: "janusvr_server"
+        },
+        karanStudy: {
+            enabled: false
+        },
+        user: {
+            enabled: true
         },
         perfLog: {
             enabled: true,

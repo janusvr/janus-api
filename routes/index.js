@@ -15,6 +15,8 @@ global.oauth = new OAuthServer({
 
 router.post('/oauth/token', oauth.token());
 
+var _presence;
+
 function getToken(req, res, next) {
     if (!!req.headers.authorization)
         req.token = req.headers.authorization.split(" ")[1];
@@ -25,6 +27,39 @@ function getToken(req, res, next) {
 router.get('/secret', oauth.authenticate({scope: 'secret'}), getToken, (req, res) => {
     res.send('Secret');
 });
+
+
+// get all users online, remove offline users from party mode results and return
+function filterStuckUsers(partyData)
+{
+    var sql = "SELECT userId FROM users WHERE updated_at > DATE_SUB(NOW() , INTERVAL 10 SECOND) ORDER BY userId";
+    _presence.query(sql, function(err, result) {
+        if (err) {
+            console.log(err);
+            return partyData;
+        }
+        var onlineUsers = [];
+        var rows = JSON.parse(JSON.stringify(result));
+        for (var i in rows)
+        {
+            console.log(rows[i]);
+            onlineUsers.push(rows[i].userId);
+        }
+        var i = partyData.length;
+        while (i--)
+        {
+            if (partyData[i].userId)
+            {
+                if (!onlineUsers.includes(partyData[i].userId))
+                {
+                    partyData.splice(i,1);
+                }
+            }
+        }
+        return partyData;
+    });
+    return partyData;
+}
 
 if (global.config.apis.karanStudy.enabled) {
     var studyModel = require('../model/karanStudy.js'),
@@ -109,6 +144,13 @@ if (global.config.apis.addThumb.enabled) {
 }
 
 if (global.config.apis.partyList.enabled) {
+    _presence = mysql.createPool({
+        host     : config.MySQL_Hostname,
+        user     : config.MySQL_Username,
+        password : config.MySQL_Password,
+        database : config.apis.partyList.presence_db
+    });
+    
     router.get('/get_partylist', function (req, res) {
         redisClient.get("partylist", (err, reply) => {
             if (err) 
@@ -135,6 +177,7 @@ if (global.config.apis.partyList.enabled) {
             }, function(err) {
                 if (err)
                     return res.json({"success": false});
+                rval.data = filterStuckUsers(rval.data);
                 return res.json(rval);
             });
         });
