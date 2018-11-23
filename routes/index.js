@@ -165,7 +165,7 @@ if (global.config.apis.partyList.enabled) {
                             }
                         }
                     }
-                    return res.json(rval.data);
+                    return res.json({'success':true, 'data':rval.data});
                 });
             });
         });
