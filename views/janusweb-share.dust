@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="/janusweb.js"></script>
+  </head>
+  <body>
+    <div data-elation-component="share.handler"></div>
+  </body>
+</html>
+

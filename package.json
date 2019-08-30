@@ -30,6 +30,7 @@
     "bcrypt": "^1.0.2",
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
+    "dust-engine": "^1.0.2",
     "express": "^4.14.0",
     "express-dustjs": "^1.1.1",
     "express-oauth-server": "^2.0.0-b1",

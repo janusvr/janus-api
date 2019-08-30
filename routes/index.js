@@ -63,6 +63,9 @@ if (global.config.apis.screenshot.enabled) {
 if (global.config.apis.user.enabled) {
     router.use('/user', require('./user'));
 }
+if (global.config.apis.janusweb.enabled) {
+    router.use('/janusweb', require('./janusweb'));
+}
 
 router.use('/room', require('./room'));
 

@@ -1,0 +1,32 @@
+<!DOCTYPE html>{~n}
+<html>{~n}
+  <head>{~n}
+    <title>{room.roomtitle} - JanusWeb</title>{~n}
+    {~n}
+    <link rel="stylesheet" type="text/css" href="{versionpath}/janusweb.css" media="all" />{~n}
+    <meta charset="utf-8">{~n}
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0, width=device-width" />{~n}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="twitter:card"        content="summary_large_image" />{~n}
+    <meta name="twitter:site"        content="{config.twitter.user}" />{~n}
+    <meta name="twitter:title"       content="{room.roomtitle}" />{~n}
+    <meta name="twitter:description" content="{room.description}" />{~n}
+    <meta name="twitter:image"       content="{room.image}" />{~n}
+    <meta name="twitter:image:alt"   content="{room.roomtitle}" />{~n}
+   {~n}
+    <meta property="og:app_id"       content="1197654320349894" />{~n}
+    <meta property="og:url"          content="https://web.janusvr.com{versionpath}/sites/{url}" />{~n}
+    <meta property="og:type"         content="website" />{~n}
+    <meta property="og:title"        content="{room.roomtitle}" />{~n}
+    <meta property="og:description"  content="{room.description}" />{~n}
+    <meta property="og:image"        content="{room.image}" />{~n}
+{~n}
+    <script src="{versionpath}/janusweb.js"></script>{~n}
+  </head>{~n}
+  <body>{~n}
+    <script>elation.janusweb.init({ homepage: "https://vesta.janusweb.com/", url: "{url}", urltemplate: '{versionpath}/sites/{~lb}url|stripunsafe{~rb}'})</script>{~n}
+
+  </body>{~n}
+</html>{~n}
+
