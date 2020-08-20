@@ -27,7 +27,7 @@
   "dependencies": {
     "async": "^2.1.4",
     "aws-sdk": "^2.7.21",
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^5.0.0",
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "dust-engine": "^1.0.2",
